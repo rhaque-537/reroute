@@ -11,10 +11,10 @@ export default function AboutModal() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="w-10 h-10 flex items-center justify-center rounded-lg bg-navy-light border border-navy-lighter hover:border-teal transition-colors min-w-[44px] min-h-[44px]"
+        className="w-10 h-10 flex items-center justify-center rounded-full border border-white/10 hover:border-white/30 transition-all min-w-[44px] min-h-[44px]"
         aria-label="About ReRoute"
       >
-        <Info size={18} className="text-gray-400" />
+        <Info size={16} className="opacity-40" />
       </button>
 
       <AnimatePresence>
@@ -26,44 +26,47 @@ export default function AboutModal() {
             className="fixed inset-0 z-[150] flex items-center justify-center px-6"
             onClick={() => setOpen(false)}
           >
-            <div className="absolute inset-0 bg-black/60" />
+            <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
+              initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="relative bg-navy-light border border-navy-lighter rounded-2xl p-6 max-w-[380px] w-full z-10"
+              exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="relative bg-navy border border-white/10 rounded-sm p-10 max-w-[480px] w-full z-10"
               onClick={(e) => e.stopPropagation()}
             >
               <button
                 onClick={() => setOpen(false)}
-                className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-lg hover:bg-navy-lighter transition-colors min-w-[44px] min-h-[44px]"
+                className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center opacity-40 hover:opacity-100 transition-opacity min-w-[44px] min-h-[44px]"
               >
                 <X size={18} />
               </button>
 
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-teal flex items-center justify-center">
-                  <Plane size={20} className="text-navy" />
-                </div>
-                <div>
-                  <h2 className="font-bold text-lg">ReRoute</h2>
-                  <p className="text-xs text-gray-400">AI Travel Recovery for Workers</p>
-                </div>
+              <div className="text-center mb-8">
+                <Plane size={24} className="text-teal mx-auto mb-4" />
+                <h2 className="font-serif text-2xl mb-1">ReRoute</h2>
+                <p className="section-label">AI Travel Recovery for Workers</p>
               </div>
 
-              <p className="text-sm text-gray-300 leading-relaxed mb-4">
-                The 2025-2026 TSA staffing crisis left thousands stranded. White collar workers
-                rebook with points. Blue collar workers lose shifts and wages. ReRoute changes that.
-              </p>
-
-              <div className="bg-navy border border-navy-lighter rounded-xl p-3 mb-4">
-                <p className="text-[10px] text-gray-500 uppercase font-semibold mb-2 tracking-wider">Powered by</p>
-                <p className="text-xs text-gray-300 leading-relaxed">
-                  Lava AI Gateway &bull; Claude AI &bull; K2 Think V2 &bull; Hermes 3 &bull; Hex Analytics &bull; Next.js
+              <div className="dashed-divider pt-6 mb-6">
+                <p className="text-sm opacity-70 leading-relaxed text-center">
+                  The 2025–2026 TSA staffing crisis left thousands stranded.
+                  White collar workers rebook with points. Blue collar workers
+                  lose shifts and wages. ReRoute changes that.
                 </p>
               </div>
 
-              <p className="text-xs text-teal font-semibold text-center">Built at YHack 2026</p>
+              <div className="dashed-divider pt-6 mb-6">
+                <p className="section-label text-center mb-4">Powered by</p>
+                <p className="text-xs opacity-50 text-center leading-relaxed">
+                  Lava AI Gateway &bull; Claude AI &bull; K2 Think V2 &bull; Hermes 3<br />
+                  Hex Analytics &bull; Wanderu &bull; Rome2Rio &bull; Next.js
+                </p>
+              </div>
+
+              <div className="dashed-divider pt-6 text-center">
+                <p className="section-label">Built at YHack 2026</p>
+              </div>
             </motion.div>
           </motion.div>
         )}

@@ -19,6 +19,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],
+        serif: ["DM Serif Display", "Georgia", "serif"],
       },
     },
   },

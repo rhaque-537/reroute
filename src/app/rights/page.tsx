@@ -2,29 +2,24 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Shield, ChevronDown, ChevronUp, Globe, Calculator } from "lucide-react";
-import { Skeleton } from "@/components/Skeleton";
+import { Globe, Plus, Minus } from "lucide-react";
 
-const quickRef = [
+const rightsData = [
   {
     title: "Flight canceled?",
-    desc: "Free rebooking required by law",
-    detail: "Airlines must rebook you on the next available flight at no extra cost, or provide a full refund.",
+    detail: "Airlines must rebook you on the next available flight at no extra cost, or provide a full cash refund. Under the 2024 DOT Automatic Refunds Rule, refunds must be issued within 7 business days for credit card purchases.",
   },
   {
     title: "Tarmac delay 3+ hours?",
-    desc: "Right to deplane",
-    detail: "Under 14 CFR Part 259, airlines must allow passengers to deplane after 3 hours on domestic flights.",
+    detail: "Under 14 CFR Part 259, airlines must allow passengers to deplane after 3 hours on domestic flights (4 hours international). Food and water must be provided within 2 hours. Violations carry fines up to $37,377 per passenger.",
   },
   {
     title: "Involuntary bumping?",
-    desc: "Owed up to $1,550",
-    detail: "If denied boarding involuntarily, compensation ranges from 200% to 400% of your one-way fare, up to $1,550.",
+    detail: "Under 14 CFR Part 250, if denied boarding involuntarily, compensation is 200% of one-way fare (1–2 hour delay, max $775) or 400% of one-way fare (2+ hours, max $1,550). Airlines must pay in cash or check — not just vouchers.",
   },
   {
     title: "Significant delay?",
-    desc: "Meal and hotel vouchers",
-    detail: "Airlines must provide meal vouchers for delays over 3 hours and hotel accommodations for overnight delays.",
+    detail: "Airlines must provide meal vouchers for delays over 3 hours and hotel accommodations for overnight delays caused by the airline. Ground transportation to and from the hotel must also be provided.",
   },
 ];
 
@@ -42,7 +37,7 @@ export default function RightsPage() {
     recommendedActions: string[];
   } | null>(null);
   const [loading, setLoading] = useState(false);
-  const [expandedReasoning, setExpandedReasoning] = useState(false);
+  const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
 
   const calculate = async () => {
     setLoading(true);
@@ -52,14 +47,10 @@ export default function RightsPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          disruptionType,
-          delayHours,
-          domestic,
+          disruptionType, delayHours, domestic,
           ticketPrice: Number(ticketPrice) || 300,
-          airline: "American Airlines",
-          flightDuration: 3.5,
-          voluntaryBump: false,
-          notificationTime: 0,
+          airline: "American Airlines", flightDuration: 3.5,
+          voluntaryBump: false, notificationTime: 0,
         }),
       });
       const data = await res.json();
@@ -67,24 +58,10 @@ export default function RightsPage() {
     } catch {
       setResult({
         compensationAmount: disruptionType === "bumped" ? 1550 : domestic ? 350 : 700,
-        reasoningChain: `Step 1: Identify the disruption type — ${disruptionType}.\n\nStep 2: Determine applicable regulations. Under 14 CFR Part 259 (Tarmac Delays) and 14 CFR Part 250 (Denied Boarding), the DOT mandates specific compensation.\n\nStep 3: For a ${disruptionType} with ${delayHours} hours of delay on a ${domestic ? "domestic" : "international"} flight with a ticket price of $${ticketPrice || 300}:\n- The airline must offer rebooking on the next available flight at no additional cost\n- A full cash refund must be available if the passenger chooses not to travel\n- For delays exceeding 3 hours, meal vouchers are required\n\nStep 4: Calculate compensation amount based on delay duration and ticket price.\n- Base compensation: ${domestic ? "200%" : "400%"} of one-way fare\n- Maximum cap: $${domestic ? "775" : "1,550"}\n- Calculated amount: $${disruptionType === "bumped" ? 1550 : domestic ? 350 : 700}\n\nStep 5: Recommended passenger actions — file complaint with DOT, request written documentation from airline.`,
-        applicableRules: [
-          "14 CFR Part 259 — Enhanced Protections for Airline Passengers",
-          "14 CFR Part 250 — Oversales (Denied Boarding Compensation)",
-          "DOT Final Rule on Automatic Refunds (2024)",
-        ],
-        airlineObligations: [
-          "Provide free rebooking on next available flight",
-          "Offer full cash refund if passenger declines rebooking",
-          "Provide meal vouchers for delays over 3 hours",
-          "Provide hotel accommodation for overnight delays",
-        ],
-        recommendedActions: [
-          "Request written confirmation of the disruption from the airline",
-          "File a complaint with DOT if airline refuses compensation",
-          "Keep all receipts for out-of-pocket expenses",
-          "Contact ReRoute to automate your claim",
-        ],
+        reasoningChain: `Step 1: Identify disruption — ${disruptionType}.\n\nStep 2: Under 14 CFR Part 259 and Part 250, the DOT mandates specific compensation.\n\nStep 3: For ${disruptionType} with ${delayHours}h delay on ${domestic ? "domestic" : "international"} flight, ticket $${ticketPrice || 300}:\n- Airline must rebook at no cost\n- Full cash refund available\n- Meal vouchers for 3+ hour delays\n\nStep 4: Compensation = ${domestic ? "200%" : "400%"} of fare, cap $${domestic ? "775" : "1,550"}.\nCalculated: $${disruptionType === "bumped" ? 1550 : domestic ? 350 : 700}\n\nStep 5: File DOT complaint if airline refuses.`,
+        applicableRules: ["14 CFR Part 259", "14 CFR Part 250", "DOT Automatic Refunds Rule (2024)"],
+        airlineObligations: ["Free rebooking on next flight", "Full cash refund option", "Meal vouchers (3+ hours)", "Hotel for overnight delays"],
+        recommendedActions: ["Get written confirmation", "File DOT complaint if refused", "Keep all receipts", "Use ReRoute to automate claim"],
       });
     } finally {
       setLoading(false);
@@ -92,199 +69,152 @@ export default function RightsPage() {
   };
 
   return (
-    <div className="px-5 pt-8 pb-8">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-bold">Know Your Rights</h1>
+    <div className="max-w-3xl mx-auto px-6 md:px-8 pt-12 md:pt-16">
+      {/* Header */}
+      <div className="flex items-start justify-between mb-4">
+        <div>
+          <h1 className="font-serif text-[clamp(36px,6vw,52px)] leading-tight">
+            Know your<br /><span className="font-serif-italic">rights.</span>
+          </h1>
+        </div>
         <button
-          onClick={() => setLang((l) => (l === "en" ? "es" : "en"))}
-          className="flex items-center gap-1.5 bg-navy-light border border-navy-lighter rounded-lg px-3 py-2 text-sm min-h-[44px]"
+          onClick={() => setLang(l => (l === "en" ? "es" : "en"))}
+          className="flex items-center gap-2 text-xs opacity-40 hover:opacity-100 transition-opacity min-h-[44px] min-w-[44px] justify-center mt-2"
         >
-          <Globe size={16} />
-          {lang === "en" ? "EN" : "ES"}
+          <Globe size={14} />{lang === "en" ? "EN" : "ES"}
         </button>
       </div>
+      <p className="section-label mb-4">——— Powered by K2 Think V2 ———</p>
 
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-navy-light border border-navy-lighter rounded-2xl p-5 mb-6"
-      >
-        <div className="flex items-center gap-2 mb-4">
-          <Calculator size={20} className="text-teal" />
-          <h2 className="font-bold">
-            {lang === "en" ? "Calculate My Compensation" : "Calcular Mi Compensación"}
-          </h2>
+      <div className="dashed-divider my-10" />
+
+      {/* Calculator */}
+      <div className="mb-12">
+        <p className="section-label mb-6">{lang === "en" ? "Calculate Compensation" : "Calcular Compensación"}</p>
+
+        {/* Desktop: inline form */}
+        <div className="hidden md:flex items-center border border-white/15 rounded-full overflow-hidden mb-6">
+          <select value={disruptionType} onChange={e => setDisruptionType(e.target.value)} className="bg-transparent px-6 py-4 text-sm focus:outline-none appearance-none cursor-pointer">
+            <option value="cancellation" className="bg-navy">Cancellation</option>
+            <option value="delay" className="bg-navy">Delay</option>
+            <option value="bumped" className="bg-navy">Bumped</option>
+            <option value="tarmac" className="bg-navy">Tarmac</option>
+          </select>
+          <div className="w-px h-8 bg-white/10" />
+          <div className="flex items-center gap-2 px-6">
+            <span className="text-xs opacity-40">Delay:</span>
+            <input type="range" min={1} max={24} value={delayHours} onChange={e => setDelayHours(Number(e.target.value))} className="w-20" />
+            <span className="text-sm">{delayHours}h</span>
+          </div>
+          <div className="w-px h-8 bg-white/10" />
+          <button onClick={() => setDomestic(!domestic)} className="px-6 py-4 text-sm opacity-60 hover:opacity-100 transition-opacity">{domestic ? "Domestic" : "Int'l"}</button>
+          <div className="w-px h-8 bg-white/10" />
+          <input type="number" placeholder="Ticket $" value={ticketPrice} onChange={e => setTicketPrice(e.target.value)} className="bg-transparent px-6 py-4 text-sm placeholder-white/30 focus:outline-none w-28" />
+          <button onClick={calculate} disabled={loading} className="pill-button-teal rounded-full px-8 py-4 text-xs font-semibold tracking-wider uppercase m-1.5 whitespace-nowrap min-h-[44px] disabled:opacity-50">
+            {loading ? "..." : "Calculate"}
+          </button>
         </div>
 
-        <div className="space-y-3">
-          <select
-            value={disruptionType}
-            onChange={(e) => setDisruptionType(e.target.value)}
-            className="w-full bg-navy border border-navy-lighter rounded-xl px-4 py-3 text-white focus:outline-none focus:border-teal"
-          >
-            <option value="cancellation">Cancellation</option>
-            <option value="delay">Delay</option>
-            <option value="bumped">Involuntary Bumping</option>
-            <option value="tarmac">Tarmac Delay</option>
+        {/* Mobile: stacked */}
+        <div className="md:hidden space-y-3 mb-6">
+          <select value={disruptionType} onChange={e => setDisruptionType(e.target.value)} className="w-full bg-transparent border border-white/15 rounded-full px-6 py-4 text-sm focus:outline-none">
+            <option value="cancellation" className="bg-navy">Cancellation</option>
+            <option value="delay" className="bg-navy">Delay</option>
+            <option value="bumped" className="bg-navy">Bumped</option>
+            <option value="tarmac" className="bg-navy">Tarmac</option>
           </select>
-
-          <div>
-            <div className="flex justify-between text-sm mb-2">
-              <span className="text-gray-400">Delay hours</span>
-              <span className="text-teal font-semibold">{delayHours}h</span>
-            </div>
-            <input
-              type="range"
-              min={1}
-              max={24}
-              value={delayHours}
-              onChange={(e) => setDelayHours(Number(e.target.value))}
-              className="w-full accent-teal h-2 bg-navy-lighter rounded-full appearance-none cursor-pointer"
-            />
+          <div className="flex items-center gap-3 px-2">
+            <span className="text-xs opacity-30">Delay: {delayHours}h</span>
+            <input type="range" min={1} max={24} value={delayHours} onChange={e => setDelayHours(Number(e.target.value))} className="flex-1" />
           </div>
-
-          <div className="flex gap-2">
-            <button
-              onClick={() => setDomestic(true)}
-              className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-colors min-h-[44px] ${
-                domestic ? "bg-teal text-navy" : "bg-navy border border-navy-lighter text-gray-400"
-              }`}
-            >
-              Domestic
-            </button>
-            <button
-              onClick={() => setDomestic(false)}
-              className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-colors min-h-[44px] ${
-                !domestic ? "bg-teal text-navy" : "bg-navy border border-navy-lighter text-gray-400"
-              }`}
-            >
-              International
-            </button>
+          <div className="flex gap-3">
+            <button onClick={() => setDomestic(true)} className={`flex-1 py-3 rounded-full text-sm transition-all min-h-[44px] ${domestic ? "border border-teal text-teal" : "border border-white/15 opacity-40"}`}>Domestic</button>
+            <button onClick={() => setDomestic(false)} className={`flex-1 py-3 rounded-full text-sm transition-all min-h-[44px] ${!domestic ? "border border-teal text-teal" : "border border-white/15 opacity-40"}`}>International</button>
           </div>
-
-          <input
-            type="number"
-            placeholder="Ticket price ($)"
-            value={ticketPrice}
-            onChange={(e) => setTicketPrice(e.target.value)}
-            className="w-full bg-navy border border-navy-lighter rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-teal"
-          />
-
-          <button
-            onClick={calculate}
-            disabled={loading}
-            className="w-full bg-teal text-navy font-bold py-3.5 rounded-xl hover:bg-teal-dark transition-colors disabled:opacity-50 min-h-[44px]"
-          >
+          <input type="number" placeholder="Ticket price ($)" value={ticketPrice} onChange={e => setTicketPrice(e.target.value)} className="w-full bg-transparent border border-white/15 rounded-full px-6 py-4 text-sm placeholder-white/30 focus:outline-none" />
+          <button onClick={calculate} disabled={loading} className="w-full pill-button pill-button-teal !py-4 disabled:opacity-50">
             {loading ? "Analyzing..." : "Calculate"}
           </button>
         </div>
-      </motion.div>
+      </div>
 
-      {loading && (
-        <div className="space-y-3 mb-6">
-          <Skeleton className="h-20 w-full" />
-          <Skeleton className="h-40 w-full" />
-        </div>
-      )}
-
+      {/* Result */}
       <AnimatePresence>
         {result && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            className="space-y-4 mb-6"
-          >
-            <div className="bg-teal/10 border border-teal/30 rounded-2xl p-5 text-center">
-              <p className="text-sm text-teal mb-1">You are owed:</p>
-              <p className="text-4xl font-extrabold text-teal">${result.compensationAmount}</p>
-              <div className="mt-3 space-y-1">
-                {result.applicableRules.map((rule, i) => (
-                  <p key={i} className="text-xs text-gray-400">{rule}</p>
-                ))}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+            <div className="text-center mb-10">
+              <p className="section-label mb-3">You are owed</p>
+              <p className="font-serif text-[clamp(56px,12vw,80px)] leading-none text-teal">${result.compensationAmount}</p>
+              <div className="mt-4 space-y-1">
+                {result.applicableRules.map((r, i) => <p key={i} className="text-xs opacity-30">{r}</p>)}
               </div>
             </div>
 
-            <div className="bg-navy-light border border-navy-lighter rounded-2xl p-5">
-              <button
-                onClick={() => setExpandedReasoning(!expandedReasoning)}
-                className="w-full flex items-center justify-between min-h-[44px]"
-              >
-                <span className="font-semibold text-sm">K2 Reasoning Chain</span>
-                {expandedReasoning ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-              </button>
-              <AnimatePresence>
-                {expandedReasoning && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden"
-                  >
-                    <pre className="text-xs text-gray-400 whitespace-pre-wrap mt-3 leading-relaxed font-sans">
-                      {result.reasoningChain}
-                    </pre>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-              <p className="text-[10px] text-teal/60 mt-2">Powered by K2 Think V2 Reasoning Engine</p>
+            <div className="dashed-divider my-10" />
+
+            {/* Reasoning chain */}
+            <div className="mb-10">
+              <p className="section-label mb-4">K2 Reasoning Chain</p>
+              <div className="bg-white/[0.02] rounded-sm p-6">
+                <pre className="text-[13px] font-mono opacity-50 whitespace-pre-wrap leading-relaxed">{result.reasoningChain}</pre>
+              </div>
+              <p className="text-[10px] opacity-20 mt-3">Powered by K2 Think V2 Reasoning Engine</p>
             </div>
 
-            <div className="bg-navy-light border border-navy-lighter rounded-2xl p-5">
-              <h3 className="font-semibold text-sm mb-3">Airline Obligations</h3>
-              <ul className="space-y-2">
-                {result.airlineObligations.map((o, i) => (
-                  <li key={i} className="text-xs text-gray-400 flex items-start gap-2">
-                    <span className="text-teal mt-0.5">•</span>
-                    {o}
-                  </li>
-                ))}
-              </ul>
+            <div className="dashed-divider my-10" />
+
+            {/* Obligations & actions */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10">
+              <div>
+                <p className="section-label mb-4">Airline Obligations</p>
+                <div className="space-y-3">
+                  {result.airlineObligations.map((o, i) => <p key={i} className="text-sm opacity-50">{o}</p>)}
+                </div>
+              </div>
+              <div>
+                <p className="section-label mb-4">Recommended Actions</p>
+                <div className="space-y-3">
+                  {result.recommendedActions.map((a, i) => <p key={i} className="text-sm opacity-50">{i + 1}. {a}</p>)}
+                </div>
+              </div>
             </div>
 
-            <div className="bg-navy-light border border-navy-lighter rounded-2xl p-5">
-              <h3 className="font-semibold text-sm mb-3">Recommended Actions</h3>
-              <ul className="space-y-2">
-                {result.recommendedActions.map((a, i) => (
-                  <li key={i} className="text-xs text-gray-400 flex items-start gap-2">
-                    <span className="text-teal mt-0.5">{i + 1}.</span>
-                    {a}
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <div className="dashed-divider my-10" />
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="space-y-3">
-        <h2 className="font-bold text-lg mb-2">Quick Reference</h2>
-        {quickRef.map((item, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.08 }}
-            className="bg-navy-light border border-navy-lighter rounded-xl p-4"
-          >
-            <div className="flex items-start gap-3">
-              <Shield size={18} className="text-teal shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <p className="font-semibold text-sm">{item.title}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{item.desc}</p>
-                <p className="text-xs text-gray-500 mt-2">{item.detail}</p>
-                <button className="mt-2 text-xs text-teal font-semibold hover:underline min-h-[44px] flex items-center">
-                  Claim This →
-                </button>
-              </div>
-            </div>
-          </motion.div>
+      {/* FAQ Accordion */}
+      <div className="mb-16">
+        <p className="section-label text-center mb-10">——— Quick Reference ———</p>
+        {rightsData.map((item, i) => (
+          <div key={i}>
+            <button
+              onClick={() => setExpandedFaq(expandedFaq === i ? null : i)}
+              className="w-full flex items-center justify-between py-6 text-left min-h-[44px]"
+            >
+              <span className="font-serif text-xl md:text-2xl pr-4">{item.title}</span>
+              {expandedFaq === i ? <Minus size={18} className="opacity-40 shrink-0" /> : <Plus size={18} className="opacity-40 shrink-0" />}
+            </button>
+            <AnimatePresence>
+              {expandedFaq === i && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="overflow-hidden"
+                >
+                  <p className="text-sm opacity-50 leading-relaxed pb-6">{item.detail}</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+            <div className="dashed-divider" />
+          </div>
         ))}
       </div>
 
-      <p className="text-[10px] text-gray-500 text-center mt-6">
-        Based on DOT Airline Consumer Protections
-      </p>
+      <p className="text-[10px] opacity-20 text-center pb-8">Based on DOT Airline Consumer Protections</p>
     </div>
   );
 }

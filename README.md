@@ -16,6 +16,8 @@ ReRoute orchestrates three specialized AI models through the Lava unified gatewa
 
 All model calls route through a single Lava API gateway, demonstrating unified multi-model orchestration.
 
+Transport search aggregates results from Wanderu (bus/train), Rome2Rio (multi-modal routes), and direct airline availability.
+
 Analytics layer powered by Hex API for real-time disruption trend analysis.
 
 ## Features
@@ -23,7 +25,7 @@ Analytics layer powered by Hex API for real-time disruption trend analysis.
 - **Smart Trip Monitoring** — Real-time flight status tracking with automatic disruption detection
 - **Multi-Model Chat Agent** — Three AI models work together to classify, reason, and respond
 - **K2 Compensation Calculator** — Step-by-step DOT legal reasoning with specific CFR citations
-- **Cross-Modal Rebooking** — Compare flights, buses, trains, and rideshares side by side
+- **Cross-Modal Rebooking** — Compare flights, buses, trains, and rideshares via Wanderu, Rome2Rio, and direct airline availability
 - **Know Your Rights** — DOT consumer protections explained in plain language
 - **Bilingual Support** — Full English/Spanish support across chat and rights pages
 - **Voice Input** — Web Speech API integration for hands-free operation

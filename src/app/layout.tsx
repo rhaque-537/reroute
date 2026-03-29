@@ -4,6 +4,7 @@ import "./globals.css";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import BottomNav from "@/components/BottomNav";
+import TopNav from "@/components/TopNav";
 import AboutModal from "@/components/AboutModal";
 import { Toaster } from "@/components/Toast";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -31,29 +32,28 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icon-192.png" />
       </head>
       <body className="bg-navy min-h-screen">
-        <div className="mx-auto max-w-[430px] min-h-screen relative bg-navy">
-          {!isDemo && (
-            <div className="absolute top-3 right-3 z-50">
-              <AboutModal />
-            </div>
-          )}
-          <ErrorBoundary>
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={pathname}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.2 }}
-                className={isDemo ? "" : "pb-20"}
-              >
-                {children}
-              </motion.div>
-            </AnimatePresence>
-          </ErrorBoundary>
-          {!isDemo && <BottomNav />}
-          <Toaster />
-        </div>
+        {!isDemo && <TopNav />}
+        {!isDemo && (
+          <div className="fixed top-3 right-3 z-[60] md:top-auto md:bottom-6 md:right-6">
+            <AboutModal />
+          </div>
+        )}
+        <ErrorBoundary>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={pathname}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className={isDemo ? "" : "pb-16 md:pb-0 md:pt-16"}
+            >
+              {children}
+            </motion.div>
+          </AnimatePresence>
+        </ErrorBoundary>
+        {!isDemo && <BottomNav />}
+        <Toaster />
       </body>
     </html>
   );

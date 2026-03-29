@@ -2,219 +2,141 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { BarChart3, TrendingDown, Users, DollarSign } from "lucide-react";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  PieChart,
-  Pie,
-  Cell,
+  BarChart, Bar, XAxis, YAxis, ResponsiveContainer,
+  LineChart, Line, PieChart, Pie, Cell,
 } from "recharts";
-import { Skeleton } from "@/components/Skeleton";
 
 const COLORS = ["#06d6a0", "#fbbf24", "#ef4444", "#64748b"];
+
+const FALLBACK = {
+  airportCancellations: [
+    { airport: "JFK", rate: 18.2 }, { airport: "LAX", rate: 14.7 },
+    { airport: "ORD", rate: 22.1 }, { airport: "DFW", rate: 11.3 }, { airport: "ATL", rate: 16.8 },
+  ],
+  costTrends: [
+    { date: "Mar 1", cost: 245 }, { date: "Mar 5", cost: 267 }, { date: "Mar 9", cost: 312 },
+    { date: "Mar 13", cost: 289 }, { date: "Mar 17", cost: 334 }, { date: "Mar 21", cost: 356 },
+    { date: "Mar 25", cost: 378 }, { date: "Mar 29", cost: 341 },
+  ],
+  disruptionCauses: [
+    { name: "TSA Staffing", value: 34 }, { name: "Weather", value: 28 },
+    { name: "Mechanical", value: 22 }, { name: "Other", value: 16 },
+  ],
+  stats: { totalCanceled: 12847, avgLoss: 340, avgSaved: 247 },
+};
 
 interface AnalyticsData {
   airportCancellations: { airport: string; rate: number }[];
   costTrends: { date: string; cost: number }[];
   disruptionCauses: { name: string; value: number }[];
-  stats: {
-    totalCanceled: number;
-    avgLoss: number;
-    avgSaved: number;
-  };
+  stats: { totalCanceled: number; avgLoss: number; avgSaved: number };
 }
 
 export default function AnalyticsPage() {
   const [data, setData] = useState<AnalyticsData | null>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
+    (async () => {
       try {
         const res = await fetch("/api/analytics");
-        const json = await res.json();
-        setData(json);
+        setData(await res.json());
       } catch {
-        setData({
-          airportCancellations: [
-            { airport: "JFK", rate: 18.2 },
-            { airport: "LAX", rate: 14.7 },
-            { airport: "ORD", rate: 22.1 },
-            { airport: "DFW", rate: 11.3 },
-            { airport: "ATL", rate: 16.8 },
-          ],
-          costTrends: [
-            { date: "Mar 1", cost: 245 },
-            { date: "Mar 5", cost: 267 },
-            { date: "Mar 9", cost: 312 },
-            { date: "Mar 13", cost: 289 },
-            { date: "Mar 17", cost: 334 },
-            { date: "Mar 21", cost: 356 },
-            { date: "Mar 25", cost: 378 },
-            { date: "Mar 29", cost: 341 },
-          ],
-          disruptionCauses: [
-            { name: "TSA Staffing", value: 34 },
-            { name: "Weather", value: 28 },
-            { name: "Mechanical", value: 22 },
-            { name: "Other", value: 16 },
-          ],
-          stats: { totalCanceled: 12847, avgLoss: 340, avgSaved: 247 },
-        });
-      } finally {
-        setLoading(false);
+        setData(FALLBACK);
       }
-    };
-    fetchData();
+    })();
   }, []);
 
-  if (loading) {
+  if (!data) {
     return (
-      <div className="px-5 pt-8 space-y-4">
-        <Skeleton className="h-8 w-48" />
-        <div className="grid grid-cols-3 gap-3">
-          <Skeleton className="h-24" />
-          <Skeleton className="h-24" />
-          <Skeleton className="h-24" />
-        </div>
-        <Skeleton className="h-48" />
-        <Skeleton className="h-48" />
+      <div className="max-w-4xl mx-auto px-6 md:px-8 pt-12">
+        <div className="h-16 w-64 bg-white/5 rounded animate-pulse mb-8" />
+        <div className="h-48 w-full bg-white/5 rounded animate-pulse" />
       </div>
     );
   }
 
-  if (!data) return null;
-
   return (
-    <div className="px-5 pt-8 pb-8">
-      <div className="flex items-center gap-2 mb-6">
-        <BarChart3 size={22} className="text-teal" />
-        <h1 className="text-xl font-bold">TSA Crisis Impact Dashboard</h1>
+    <div className="max-w-4xl mx-auto px-6 md:px-8 pt-12 md:pt-16 pb-16">
+      {/* Header */}
+      <div className="text-center mb-4">
+        <p className="section-label mb-4">——— Analytics powered by Hex ———</p>
+        <h1 className="font-serif text-[clamp(32px,5vw,48px)] leading-tight">
+          TSA Crisis <span className="font-serif-italic">Impact</span>
+        </h1>
       </div>
 
-      <div className="grid grid-cols-3 gap-3 mb-6">
+      <div className="dashed-divider my-10" />
+
+      {/* Stats */}
+      <div className="grid grid-cols-3 gap-8 text-center mb-4">
         {[
-          {
-            icon: TrendingDown,
-            value: data.stats.totalCanceled.toLocaleString(),
-            label: "Flights canceled",
-            color: "text-disruption",
-          },
-          {
-            icon: DollarSign,
-            value: `$${data.stats.avgLoss}`,
-            label: "Avg worker loss",
-            color: "text-amber",
-          },
-          {
-            icon: Users,
-            value: `$${data.stats.avgSaved}`,
-            label: "Avg ReRoute saves",
-            color: "text-teal",
-          },
-        ].map((stat, i) => {
-          const Icon = stat.icon;
-          return (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
-              className="bg-navy-light border border-navy-lighter rounded-xl p-3 text-center"
-            >
-              <Icon size={18} className={`${stat.color} mx-auto mb-1`} />
-              <p className={`text-lg font-extrabold ${stat.color}`}>{stat.value}</p>
-              <p className="text-[10px] text-gray-400">{stat.label}</p>
-            </motion.div>
-          );
-        })}
+          { number: data.stats.totalCanceled.toLocaleString(), label: "Flights Canceled", color: "" },
+          { number: `$${data.stats.avgLoss}`, label: "Avg Worker Loss", color: "" },
+          { number: `$${data.stats.avgSaved}`, label: "Avg ReRoute Saves", color: "text-teal" },
+        ].map(({ number, label, color }, i) => (
+          <motion.div key={i} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
+            <p className={`font-serif text-[clamp(24px,4vw,40px)] mb-1 ${color}`}>{number}</p>
+            <p className="section-label">{label}</p>
+          </motion.div>
+        ))}
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="bg-navy-light border border-navy-lighter rounded-2xl p-4 mb-4"
-      >
-        <h3 className="text-sm font-semibold mb-3">Cancellation Rate by Airport</h3>
-        <ResponsiveContainer width="100%" height={200}>
+      <div className="dashed-divider my-10" />
+
+      {/* Bar chart */}
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
+        <p className="section-label mb-6">Cancellation Rate by Airport</p>
+        <ResponsiveContainer width="100%" height={220}>
           <BarChart data={data.airportCancellations}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-            <XAxis dataKey="airport" stroke="#94a3b8" fontSize={11} />
-            <YAxis stroke="#94a3b8" fontSize={11} unit="%" />
-            <Tooltip
-              contentStyle={{ backgroundColor: "#1e293b", border: "1px solid #334155", borderRadius: "8px" }}
-              labelStyle={{ color: "#fff" }}
-              itemStyle={{ color: "#06d6a0" }}
-            />
-            <Bar dataKey="rate" fill="#06d6a0" radius={[4, 4, 0, 0]} />
+            <XAxis dataKey="airport" stroke="rgba(255,255,255,0.3)" fontSize={11} axisLine={false} tickLine={false} />
+            <YAxis stroke="rgba(255,255,255,0.3)" fontSize={11} axisLine={false} tickLine={false} unit="%" />
+            <Bar dataKey="rate" fill="rgba(255,255,255,0.15)" radius={[2, 2, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="bg-navy-light border border-navy-lighter rounded-2xl p-4 mb-4"
-      >
-        <h3 className="text-sm font-semibold mb-3">Average Rebooking Cost (30 Days)</h3>
-        <ResponsiveContainer width="100%" height={200}>
+      <div className="dashed-divider my-10" />
+
+      {/* Line chart */}
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
+        <p className="section-label mb-6">Average Rebooking Cost — 30 Days</p>
+        <ResponsiveContainer width="100%" height={220}>
           <LineChart data={data.costTrends}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-            <XAxis dataKey="date" stroke="#94a3b8" fontSize={11} />
-            <YAxis stroke="#94a3b8" fontSize={11} unit="$" />
-            <Tooltip
-              contentStyle={{ backgroundColor: "#1e293b", border: "1px solid #334155", borderRadius: "8px" }}
-              labelStyle={{ color: "#fff" }}
-              itemStyle={{ color: "#fbbf24" }}
-            />
-            <Line type="monotone" dataKey="cost" stroke="#fbbf24" strokeWidth={2} dot={false} />
+            <XAxis dataKey="date" stroke="rgba(255,255,255,0.3)" fontSize={11} axisLine={false} tickLine={false} />
+            <YAxis stroke="rgba(255,255,255,0.3)" fontSize={11} axisLine={false} tickLine={false} unit="$" />
+            <Line type="monotone" dataKey="cost" stroke="rgba(255,255,255,0.5)" strokeWidth={1.5} dot={false} />
           </LineChart>
         </ResponsiveContainer>
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        className="bg-navy-light border border-navy-lighter rounded-2xl p-4 mb-4"
-      >
-        <h3 className="text-sm font-semibold mb-3">Disruption Causes</h3>
-        <ResponsiveContainer width="100%" height={200}>
-          <PieChart>
-            <Pie
-              data={data.disruptionCauses}
-              cx="50%"
-              cy="50%"
-              outerRadius={70}
-              dataKey="value"
-              label={({ name, value }) => `${name} ${value}%`}
-              labelLine={false}
-              fontSize={10}
-            >
-              {data.disruptionCauses.map((_, i) => (
-                <Cell key={i} fill={COLORS[i % COLORS.length]} />
-              ))}
-            </Pie>
-            <Tooltip
-              contentStyle={{ backgroundColor: "#1e293b", border: "1px solid #334155", borderRadius: "8px" }}
-            />
-          </PieChart>
-        </ResponsiveContainer>
+      <div className="dashed-divider my-10" />
+
+      {/* Pie chart */}
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>
+        <p className="section-label mb-6">Disruption Causes</p>
+        <div className="flex flex-col md:flex-row items-center gap-8">
+          <ResponsiveContainer width={200} height={200}>
+            <PieChart>
+              <Pie data={data.disruptionCauses} cx="50%" cy="50%" outerRadius={80} innerRadius={40} dataKey="value" strokeWidth={0}>
+                {data.disruptionCauses.map((_, i) => (<Cell key={i} fill={COLORS[i]} />))}
+              </Pie>
+            </PieChart>
+          </ResponsiveContainer>
+          <div className="space-y-3">
+            {data.disruptionCauses.map((d, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS[i] }} />
+                <span className="text-sm opacity-60">{d.name}</span>
+                <span className="text-sm opacity-30">{d.value}%</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </motion.div>
 
-      <p className="text-[10px] text-gray-500 text-center mt-4">
-        Analytics powered by Hex
-      </p>
+      <div className="dashed-divider my-10" />
+      <p className="text-[10px] opacity-20 text-center">Analytics powered by Hex</p>
     </div>
   );
 }

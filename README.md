@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ReRoute
 
-## Getting Started
+**Your AI travel agent that fights for you when flights fall apart.**
 
-First, run the development server:
+## Motivation
+
+The 2025-2026 TSA staffing crisis left thousands of workers stranded. White collar workers rebook with points and lounges. Blue collar workers lose $200 tickets AND a day's wages. ReRoute is their advocate.
+
+## Architecture
+
+ReRoute orchestrates three specialized AI models through the Lava unified gateway:
+
+- **Hermes 3** (Nous Research, 405B) — Real-time message triage and intent classification
+- **K2 Think V2** (MBZUAI, 70B) — Multi-step legal reasoning for DOT compensation analysis
+- **Claude Sonnet** (Anthropic) — Conversational agent for empathetic, multilingual worker communication
+
+All model calls route through a single Lava API gateway, demonstrating unified multi-model orchestration.
+
+Analytics layer powered by Hex API for real-time disruption trend analysis.
+
+## Features
+
+- **Smart Trip Monitoring** — Real-time flight status tracking with automatic disruption detection
+- **Multi-Model Chat Agent** — Three AI models work together to classify, reason, and respond
+- **K2 Compensation Calculator** — Step-by-step DOT legal reasoning with specific CFR citations
+- **Cross-Modal Rebooking** — Compare flights, buses, trains, and rideshares side by side
+- **Know Your Rights** — DOT consumer protections explained in plain language
+- **Bilingual Support** — Full English/Spanish support across chat and rights pages
+- **Voice Input** — Web Speech API integration for hands-free operation
+- **Disruption Analytics** — TSA crisis impact dashboard with real-time charts
+- **Demo Mode** — Full animated walkthrough showing the disruption recovery flow
+
+## Tech Stack
+
+- **Framework**: Next.js 14 (App Router), TypeScript
+- **Styling**: Tailwind CSS, Framer Motion
+- **AI Gateway**: Lava AI (unified multi-model orchestration)
+- **Analytics**: Hex API, Recharts
+- **Voice**: Web Speech API
+- **Icons**: Lucide React
+
+## Setup
 
 ```bash
+# Install dependencies
+npm install
+
+# Set up environment variables
+cp .env.local.example .env.local
+# Fill in your API keys:
+# - LAVA_API_KEY
+# - K2_API_URL (defaults to https://api.lava.so/v2/chat/completions)
+# - HEX_API_KEY
+# - HEX_PROJECT_ID
+
+# Run development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Screenshots
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+_Coming soon_
 
-## Learn More
+## API Routes
 
-To learn more about Next.js, take a look at the following resources:
+| Route | Method | Description |
+|-------|--------|-------------|
+| `/api/chat` | POST | Multi-model orchestrated chat (Hermes → K2 → Claude) |
+| `/api/analyze-rights` | POST | K2 deep reasoning for DOT compensation |
+| `/api/analyze-trip` | POST | Trip risk assessment |
+| `/api/analytics` | GET | Disruption analytics (Hex-powered) |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Built at **YHack 2026**

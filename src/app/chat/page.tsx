@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { Suspense, useState, useEffect, useRef, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Send, Mic, Globe } from "lucide-react";
 
@@ -10,16 +11,27 @@ interface Message {
   content: string;
 }
 
-const DEMO_RESPONSES: Record<string, string> = {
-  default: "I understand your concern. Based on your situation, I've found several alternatives that can get you there on time and save you money. Want me to walk you through the options?",
-  cheapest: "Great choice! I found a Greyhound option on Wanderu for $97 — that's $192 less than rebooking the same airline. Rome2Rio shows it connects with a short flight that gets you to DFW by 9pm, plenty of time for your morning shift. Want me to lock it in?",
-  rights: "Under DOT rules (14 CFR Part 259), when an airline cancels your flight, they MUST rebook you on the next available flight at no extra cost. You're also entitled to a full refund if you choose not to travel. Since your delay exceeds 3 hours on a domestic flight, you may also be eligible for meal vouchers.",
-  spanish: "Entiendo tu preocupación. He encontrado varias alternativas que pueden llevarte allí a tiempo y ahorrarte dinero. ¿Quieres que te explique las opciones?",
-};
-
-const PROACTIVE_MESSAGE = "Hey — I detected your flight AA 1247 was just canceled. I've already found you 4 alternatives. Want me to walk you through them, or should I just book the cheapest option?";
-
 export default function ChatPage() {
+  return (
+    <Suspense fallback={<div className="max-w-2xl mx-auto px-6 pt-12"><div className="h-8 w-48 bg-white/5 rounded animate-pulse" /></div>}>
+      <ChatContent />
+    </Suspense>
+  );
+}
+
+function ChatContent() {
+  const searchParams = useSearchParams();
+
+  const tripDetails = useMemo(() => ({
+    origin: searchParams.get("origin") || "JFK",
+    destination: searchParams.get("destination") || "DFW",
+    flight: searchParams.get("flight") || "AA 1247",
+    date: searchParams.get("date") || "2026-04-02",
+    status: searchParams.get("status") || "canceled",
+  }), [searchParams]);
+
+  const proactiveMessage = `Hey — I detected your flight ${tripDetails.flight} from ${tripDetails.origin} to ${tripDetails.destination} was just canceled. I've already searched Wanderu, Rome2Rio, and direct airlines and found you 4 alternatives. Want me to walk you through them, or should I just book the cheapest option?`;
+
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isRecording, setIsRecording] = useState(false);
@@ -32,22 +44,14 @@ export default function ChatPage() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setMessages([{ id: ++msgId.current, role: "assistant", content: PROACTIVE_MESSAGE }]);
+      setMessages([{ id: ++msgId.current, role: "assistant", content: proactiveMessage }]);
     }, 600);
     return () => clearTimeout(timer);
-  }, []);
+  }, [proactiveMessage]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-
-  const getDemoResponse = (text: string): string => {
-    const lower = text.toLowerCase();
-    if (lang === "es") return DEMO_RESPONSES.spanish;
-    if (lower.includes("cheap") || lower.includes("book")) return DEMO_RESPONSES.cheapest;
-    if (lower.includes("right") || lower.includes("owe") || lower.includes("compensation")) return DEMO_RESPONSES.rights;
-    return DEMO_RESPONSES.default;
-  };
 
   const sendMessage = async (text: string) => {
     if (!text.trim() || isStreaming) return;
@@ -63,7 +67,7 @@ export default function ChatPage() {
         body: JSON.stringify({
           messages: [...messages, userMsg].map(m => ({ role: m.role, content: m.content })),
           language: lang,
-          tripDetails: { origin: "JFK", destination: "DFW", flight: "AA 1247", date: "2026-04-02", status: "canceled" },
+          tripDetails,
         }),
       });
 
@@ -97,7 +101,9 @@ export default function ChatPage() {
         }
       }
     } catch {
-      const fallback = getDemoResponse(text);
+      // The API route handles all fallback tiers server-side now,
+      // so this catch only fires for network-level failures
+      const fallback = `I'm having trouble connecting right now, but I can tell you that your flight ${tripDetails.flight} from ${tripDetails.origin} to ${tripDetails.destination} has been disrupted. Under DOT rules, you're entitled to a full refund or free rebooking. I found alternatives starting at $97 via Wanderu. Try sending your message again in a moment.`;
       const assistantMsg: Message = { id: ++msgId.current, role: "assistant", content: "" };
       setMessages(prev => [...prev, assistantMsg]);
       for (let i = 0; i < fallback.length; i++) {

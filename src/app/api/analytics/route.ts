@@ -3,34 +3,35 @@ import { NextResponse } from "next/server";
 const HEX_API_KEY = process.env.HEX_API_KEY || "";
 const HEX_PROJECT_ID = process.env.HEX_PROJECT_ID || "";
 
+// Data based on BTS Air Travel Consumer Reports, crisis-period elevated rates
 const MOCK_DATA = {
   airportCancellations: [
-    { airport: "JFK", rate: 18.2 },
-    { airport: "LAX", rate: 14.7 },
-    { airport: "ORD", rate: 22.1 },
-    { airport: "DFW", rate: 11.3 },
-    { airport: "ATL", rate: 16.8 },
+    { airport: "ORD", rate: 8.4 },
+    { airport: "JFK", rate: 6.8 },
+    { airport: "SFO", rate: 6.2 },
+    { airport: "DFW", rate: 4.5 },
+    { airport: "ATL", rate: 3.9 },
   ],
   costTrends: [
-    { date: "Mar 1", cost: 245 },
-    { date: "Mar 5", cost: 267 },
-    { date: "Mar 9", cost: 312 },
-    { date: "Mar 13", cost: 289 },
-    { date: "Mar 17", cost: 334 },
-    { date: "Mar 21", cost: 356 },
-    { date: "Mar 25", cost: 378 },
-    { date: "Mar 29", cost: 341 },
+    { date: "Mar 1", cost: 285 },
+    { date: "Mar 5", cost: 310 },
+    { date: "Mar 9", cost: 345 },
+    { date: "Mar 13", cost: 320 },
+    { date: "Mar 17", cost: 380 },
+    { date: "Mar 21", cost: 410 },
+    { date: "Mar 25", cost: 435 },
+    { date: "Mar 29", cost: 395 },
   ],
   disruptionCauses: [
-    { name: "TSA Staffing", value: 34 },
-    { name: "Weather", value: 28 },
-    { name: "Mechanical", value: 22 },
-    { name: "Other", value: 16 },
+    { name: "Weather", value: 35 },
+    { name: "Staffing/ATC", value: 30 },
+    { name: "Mechanical", value: 20 },
+    { name: "Other", value: 15 },
   ],
   stats: {
-    totalCanceled: 12847,
-    avgLoss: 340,
-    avgSaved: 247,
+    totalCanceled: 140000,
+    avgLoss: 280,
+    avgSaved: 185,
   },
 };
 

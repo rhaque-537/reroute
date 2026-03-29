@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 
 const options = [
   { emoji: "✈️", mode: "Flight", detail: "JFK 6:10 PM ——— DFW 11:00 PM", duration: "4h direct", price: 289, source: "via Google Flights", badge: null },
-  { emoji: "🚌", mode: "Bus + Flight", detail: "JFK 1:00 PM ——— DFW 9:00 PM", duration: "8h multi-modal", price: 97, source: "via Wanderu", badge: "Best Value" },
-  { emoji: "🚂", mode: "Train", detail: "Penn Station 2:15 PM ——— DFW next AM", duration: "14h overnight", price: 65, source: "via Amtrak.com", badge: null },
-  { emoji: "🚗", mode: "Rideshare", detail: "JFK 4:00 PM ——— DFW 10:00 PM", duration: "6h split fare", price: 120, source: "via Rome2Rio", badge: null },
+  { emoji: "🚌", mode: "Bus + Flight", detail: "Bus to PHL 1:00 PM → Fly PHL–DFW arr 9:00 PM", duration: "8h multi-modal", price: 97, source: "via Wanderu + Google Flights", badge: "Best Value" },
+  { emoji: "🚂", mode: "Train + Flight", detail: "Amtrak to DC 11:00 AM → Fly DCA–DFW arr 9:30 PM", duration: "10.5h multi-modal", price: 175, source: "via Amtrak + Google Flights", badge: null },
+  { emoji: "🚗", mode: "Rideshare + Flight", detail: "Uber to EWR 3:30 PM → Fly EWR–DFW arr 9:45 PM", duration: "6h multi-modal", price: 130, source: "via Rome2Rio", badge: null },
 ];
 
 export default function OptionsPage() {

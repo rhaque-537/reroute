@@ -1,15 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Footer from "@/components/Footer";
+
+function getDefaultDate(): string {
+  const d = new Date();
+  d.setDate(d.getDate() + 3);
+  return d.toISOString().split("T")[0];
+}
+
+function getTodayDate(): string {
+  return new Date().toISOString().split("T")[0];
+}
 
 export default function Landing() {
   const router = useRouter();
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
-  const [date, setDate] = useState("");
+  const defaultDate = useMemo(() => getDefaultDate(), []);
+  const todayDate = useMemo(() => getTodayDate(), []);
+  const [date, setDate] = useState(defaultDate);
   const [flightNumber, setFlightNumber] = useState("");
   const [budget, setBudget] = useState(200);
 
@@ -55,41 +67,42 @@ export default function Landing() {
           className="w-full max-w-3xl"
         >
           {/* Desktop: single row */}
-          <div className="hidden md:flex items-center border border-white/15 rounded-full overflow-hidden">
+          <div className="hidden md:flex items-center border border-white/15 rounded-full">
             <input
               type="text"
               placeholder="Origin"
               value={origin}
               onChange={(e) => setOrigin(e.target.value)}
               required
-              className="flex-1 bg-transparent px-6 py-4 text-sm placeholder-white/30 focus:outline-none"
+              className="w-0 flex-1 min-w-0 bg-transparent px-5 py-4 text-sm placeholder-white/30 focus:outline-none"
             />
-            <div className="w-px h-8 bg-white/10" />
+            <div className="w-px h-8 bg-white/10 shrink-0" />
             <input
               type="text"
               placeholder="Destination"
               value={destination}
               onChange={(e) => setDestination(e.target.value)}
               required
-              className="flex-1 bg-transparent px-6 py-4 text-sm placeholder-white/30 focus:outline-none"
+              className="w-0 flex-1 min-w-0 bg-transparent px-5 py-4 text-sm placeholder-white/30 focus:outline-none"
             />
-            <div className="w-px h-8 bg-white/10" />
+            <div className="w-px h-8 bg-white/10 shrink-0" />
             <input
               type="date"
               value={date}
+              min={todayDate}
               onChange={(e) => setDate(e.target.value)}
               required
-              className="bg-transparent px-6 py-4 text-sm placeholder-white/30 focus:outline-none text-white/70"
+              className="shrink-0 bg-transparent px-5 py-4 text-sm placeholder-white/30 focus:outline-none text-white/70"
             />
-            <div className="w-px h-8 bg-white/10" />
+            <div className="w-px h-8 bg-white/10 shrink-0" />
             <input
               type="text"
-              placeholder="Flight #"
+              placeholder="e.g. AA 1247"
               value={flightNumber}
               onChange={(e) => setFlightNumber(e.target.value)}
-              className="w-28 bg-transparent px-6 py-4 text-sm placeholder-white/30 focus:outline-none"
+              className="w-24 shrink-0 bg-transparent px-5 py-4 text-sm placeholder-white/30 focus:outline-none"
             />
-            <button type="submit" className="pill-button-teal rounded-full px-8 py-4 text-xs font-semibold tracking-wider uppercase m-1.5 whitespace-nowrap min-h-[44px]">
+            <button type="submit" className="shrink-0 pill-button-teal rounded-full px-6 py-4 text-xs font-semibold tracking-wider uppercase m-1.5 whitespace-nowrap min-h-[44px]">
               Protect My Trip
             </button>
           </div>
@@ -98,7 +111,7 @@ export default function Landing() {
           <div className="md:hidden space-y-3">
             <input type="text" placeholder="Origin (e.g. JFK)" value={origin} onChange={(e) => setOrigin(e.target.value)} required className="w-full bg-transparent border border-white/15 rounded-full px-6 py-4 text-sm placeholder-white/30 focus:outline-none focus:border-white/30 transition-colors" />
             <input type="text" placeholder="Destination (e.g. DFW)" value={destination} onChange={(e) => setDestination(e.target.value)} required className="w-full bg-transparent border border-white/15 rounded-full px-6 py-4 text-sm placeholder-white/30 focus:outline-none focus:border-white/30 transition-colors" />
-            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required className="w-full bg-transparent border border-white/15 rounded-full px-6 py-4 text-sm text-white/70 focus:outline-none focus:border-white/30 transition-colors" />
+            <input type="date" value={date} min={todayDate} onChange={(e) => setDate(e.target.value)} required className="w-full bg-transparent border border-white/15 rounded-full px-6 py-4 text-sm text-white/70 focus:outline-none focus:border-white/30 transition-colors" />
             <input type="text" placeholder="Flight number (optional)" value={flightNumber} onChange={(e) => setFlightNumber(e.target.value)} className="w-full bg-transparent border border-white/15 rounded-full px-6 py-4 text-sm placeholder-white/30 focus:outline-none focus:border-white/30 transition-colors" />
             <div className="flex items-center gap-4 px-2">
               <span className="text-xs opacity-30 whitespace-nowrap">Budget: ${budget}</span>
@@ -119,9 +132,9 @@ export default function Landing() {
       <section className="py-20 md:py-28">
         <div className="max-w-4xl mx-auto px-6 md:px-8 grid grid-cols-3 gap-8 text-center">
           {[
-            { number: "12,847", label: "Flights Disrupted" },
-            { number: "$340", label: "Average Worker Loss" },
-            { number: "47%", label: "Couldn't Rebook Same Day" },
+            { number: "140,000+", label: "US Flights Canceled (2024)" },
+            { number: "$280", label: "Avg Domestic One-Way Fare" },
+            { number: "2.1%", label: "National Cancellation Rate" },
           ].map(({ number, label }) => (
             <motion.div key={label} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
               <p className="font-serif text-[clamp(28px,5vw,48px)] mb-2">{number}</p>
@@ -129,6 +142,7 @@ export default function Landing() {
             </motion.div>
           ))}
         </div>
+        <p className="text-[10px] opacity-20 text-center mt-6">Source: Bureau of Transportation Statistics, 2024</p>
       </section>
 
       {/* ===== HOW IT WORKS ===== */}

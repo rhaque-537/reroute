@@ -24,8 +24,8 @@ const TIMELINE: { step: DemoStep; at: number }[] = [
 
 const fade = { initial: { opacity: 0, y: 15 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -10 }, transition: { duration: 0.8 } };
 
-const AIRPORT_DATA = [{ airport: "JFK", rate: 18.2 }, { airport: "LAX", rate: 14.7 }, { airport: "ORD", rate: 22.1 }, { airport: "DFW", rate: 11.3 }, { airport: "ATL", rate: 16.8 }];
-const DISRUPTION_DATA = [{ name: "TSA", value: 34 }, { name: "Weather", value: 28 }, { name: "Mech", value: 22 }, { name: "Other", value: 16 }];
+const AIRPORT_DATA = [{ airport: "ORD", rate: 8.4 }, { airport: "JFK", rate: 6.8 }, { airport: "SFO", rate: 6.2 }, { airport: "DFW", rate: 4.5 }, { airport: "ATL", rate: 3.9 }];
+const DISRUPTION_DATA = [{ name: "Weather", value: 35 }, { name: "Staffing", value: 30 }, { name: "Mech", value: 20 }, { name: "Other", value: 15 }];
 const PIE_COLORS = ["#06d6a0", "#fbbf24", "#ef4444", "#64748b"];
 
 const feedItems = [
@@ -37,9 +37,9 @@ const feedItems = [
 
 const options = [
   { emoji: "✈️", mode: "Flight", price: 289, source: "Google Flights" },
-  { emoji: "🚌", mode: "Bus + Flight", price: 97, source: "Wanderu", badge: "Best Value" },
-  { emoji: "🚂", mode: "Train", price: 65, source: "Amtrak.com" },
-  { emoji: "🚗", mode: "Rideshare", price: 120, source: "Rome2Rio" },
+  { emoji: "🚌", mode: "Bus + Flight", price: 97, source: "Wanderu + Google Flights", badge: "Best Value" },
+  { emoji: "🚂", mode: "Train + Flight", price: 175, source: "Amtrak + Google Flights" },
+  { emoji: "🚗", mode: "Rideshare + Flight", price: 130, source: "Rome2Rio" },
 ];
 
 export default function DemoPage() {
@@ -75,15 +75,15 @@ export default function DemoPage() {
     t.push(setTimeout(() => setVisibleFeed([feedItems[0]]), 9000));
     t.push(setTimeout(() => { setVisibleFeed(p => [...p, feedItems[1]]); setToastMsg("⚠️ DELAYED: Flight AA 1247"); setToastType("warn"); }, 13000));
     t.push(setTimeout(() => setToastMsg(null), 16000));
-    t.push(setTimeout(() => { setVisibleFeed(p => [...p, feedItems[2]]); setToastMsg("⚠️ CANCELED: Flight AA 1247"); setToastType("err"); animateSavings(247); }, 18000));
+    t.push(setTimeout(() => { setVisibleFeed(p => [...p, feedItems[2]]); setToastMsg("⚠️ CANCELED: Flight AA 1247"); setToastType("err"); animateSavings(192); }, 18000));
     t.push(setTimeout(() => setVisibleFeed(p => [...p, feedItems[3]]), 20000));
     t.push(setTimeout(() => setToastMsg(null), 22000));
 
-    const agentMsg = "Hey — I detected your flight AA 1247 was just canceled. I've already found you 4 alternatives. Want me to walk you through them, or should I just book the cheapest option?";
+    const agentMsg = "Hey — I detected your flight AA 1247 from JFK to DFW was just canceled. I searched Wanderu, Rome2Rio, and direct airlines and found you 4 alternatives. Want me to walk you through them, or should I just book the cheapest option?";
     t.push(setTimeout(() => setChatMsgs([{ role: "assistant", text: agentMsg }]), 44500));
     t.push(setTimeout(() => setChatMsgs(p => [...p, { role: "user", text: "Book the cheapest one" }]), 46500));
 
-    const resp = "Done! I found a Greyhound option on Wanderu for $97. You'll arrive at DFW by 9pm — plenty of time for your Tuesday shift. That's $192 saved.";
+    const resp = "Done! I found a bus-to-PHL + flight combo on Wanderu for $97. You'll arrive at DFW by 9pm — plenty of time for your Tuesday shift. That's $192 saved vs rebooking the same airline.";
     let partial = "";
     for (let i = 0; i < resp.length; i++) t.push(setTimeout(() => { partial = resp.slice(0, i + 1); setTypingText(partial); }, 47500 + i * 20));
 
@@ -216,7 +216,7 @@ Step 4: Airline must provide written notice.`}</pre>
               <h1 className="font-serif text-[clamp(28px,5vw,40px)] text-center mb-2">TSA Crisis <span className="font-serif-italic">Impact</span></h1>
               <div className="dashed-divider my-8" />
               <div className="grid grid-cols-3 gap-4 text-center mb-8">
-                {[{ n: "12,847", l: "Canceled" }, { n: "$340", l: "Avg Loss" }, { n: "$247", l: "Saved", c: "text-teal" }].map((s, i) => (
+                {[{ n: "140,000+", l: "Canceled (2024)" }, { n: "$280", l: "Avg Fare" }, { n: "$185", l: "Avg Saved", c: "text-teal" }].map((s, i) => (
                   <div key={i}><p className={`font-serif text-2xl ${s.c || ""}`}>{s.n}</p><p className="section-label">{s.l}</p></div>
                 ))}
               </div>
